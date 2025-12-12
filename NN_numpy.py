@@ -87,6 +87,3 @@ def predict_single(features):
     input_array = np.array(features).reshape(1, -1)
     prediction = model.predict(input_array)
     return prediction[0]
-
-
-

@@ -1,30 +1,39 @@
-# streamlit_app.py
 import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm  # 导入字体管理器
 import os
 import sys
 import json
 import warnings
 
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial Unicode MS']
-plt.rcParams['axes.unicode_minus'] = False
 def resource_path(relative_path):
+    """ 获取资源的绝对路径，兼容 PyInstaller """
     try:
+        # PyInstaller 创建的临时文件夹
         base_path = sys._MEIPASS
     except Exception:
+        # 不在 PyInstaller 环境中
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
+
+font_path = resource_path('msyh.ttc')
+if os.path.exists(font_path):
+    my_font = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = my_font.get_name()
+else:
+    st.warning(f"字体文件未找到: {font_path}。图表中的中文可能无法正常显示。")
+    plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']
+
+plt.rcParams['axes.unicode_minus'] = False
+warnings.filterwarnings("ignore", category=UserWarning, message="iCCP: known incorrect sRGB profile")
 sys.path.append(os.path.dirname(resource_path('NN_numpy.py')))
 import NN_numpy
 
-warnings.filterwarnings("ignore", category=UserWarning, message="iCCP: known incorrect sRGB profile")
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial Unicode MS']
-plt.rcParams['axes.unicode_minus'] = False
-
 # --- Streamlit 界面 ---
-st.set_page_config(page_title="混凝土强度预测", layout="wide")
+st.set_page_config(page_title="混凝土强度预测", page_icon="🏗️", layout="wide")
 st.title("混凝土强度预测程序 📈")
 if 'results' not in st.session_state:
     st.session_state.results = None
@@ -70,7 +79,7 @@ with tab2:
     if st.button("开始预测 (手动)", key="predict_manual"):
         raw_input = manual_input_text.strip()
 
-        # 检查彩蛋
+        # 彩蛋
         if raw_input == '戴松芸':
             st.session_state.results = "easter_egg"
             st.balloons()
@@ -140,7 +149,7 @@ else:
 
     with col1:
         st.subheader("数据详情")
-        st.dataframe(df.style.format({"预测值": "{:.2f}", "真实值": "{:.2f}"}), width='stretch')
+        st.dataframe(df.style.format({"预测值": "{:.2f}", "真实值": "{:.2f}"}), use_container_width=True)
 
     with col2:
         st.subheader("性能评估")
@@ -177,4 +186,3 @@ else:
                 st.info("没有有效的真实值用于计算指标和绘图。")
         else:
             st.info("未提供真实值，无法进行性能评估和绘图。")
-
