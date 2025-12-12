@@ -1,23 +1,13 @@
-# NN_numpy.py
 import json
 import numpy as np
 import os
-import sys  # 导入 sys 模块
 
-
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(os.path.dirname(__file__))
-
-    return os.path.join(base_path, relative_path)
-SCALER_PATH = resource_path('scaler.npz')
-WEIGHTS_PATH = resource_path('model_weights.json')
+SCALER_PATH = '已提取/scaler.npz'
+WEIGHTS_PATH = 'model_weights.json'
 
 
 class NumpyNeuralNetwork:
-    """一个使用 NumPy 实现的简单神经网络，用于预测。"""
+
     def __init__(self):
         self.weights = None
         self.biases = None
@@ -53,6 +43,7 @@ class NumpyNeuralNetwork:
 
     def _relu(self, x):
         return np.maximum(0, x)
+
     def predict(self, X):
         if self.weights is None or self.scaler_mean is None:
             raise RuntimeError("模型或标准化参数未加载，无法进行预测。")
@@ -82,7 +73,8 @@ def data_test(input_csv_path):
     rmse = np.sqrt(mse)
     ss_res = np.sum((y_test - predictions) ** 2)
     ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
-    r2 = 1 - (ss_res / ss_tot)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else float('nan')
+
     return {
         "MSE": mse, "MAE": mae, "RMSE": rmse, "R2": r2,
         "predictions": predictions, "true_values": y_test
@@ -95,3 +87,5 @@ def predict_single(features):
     input_array = np.array(features).reshape(1, -1)
     prediction = model.predict(input_array)
     return prediction[0]
+
+
