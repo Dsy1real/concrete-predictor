@@ -7,33 +7,20 @@ import os
 import sys
 import json
 import warnings
-
-def resource_path(relative_path):
-    """
-    获取资源的绝对路径。
-    此函数解决了在开发环境和通过 PyInstaller 打包后的环境中
-    资源文件（如字体、图片、模型文件）路径不同的问题。
-    """
-    try:
-        # PyInstaller 创建一个临时文件夹，并将路径存储在 _MEIPASS 中
-        base_path = sys._MEIPASS
-    except Exception:
-        # 在开发环境中，使用 __file__ 获取当前脚本文件的路径
-        base_path = os.path.abspath(os.path.dirname(__file__))
-    return os.path.join(base_path, relative_path)
-
-# --- 字体和路径设置 ---
-font_path = resource_path('msyh.ttc')
-my_font = fm.FontProperties(fname=font_path) if os.path.exists(font_path) else None
-
-plt.rcParams['axes.unicode_minus'] = False
-warnings.filterwarnings("ignore", category=UserWarning, message="iCCP: known incorrect sRGB profile")
-
-# --- 导入自定义模块 ---
-sys.path.append(os.path.dirname(resource_path('NN_numpy.py')))
 import NN_numpy
 
-# --- Streamlit 界面 ---
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)
+font_path = resource_path('msyh.ttc')
+my_font = fm.FontProperties(fname=font_path) if os.path.exists(font_path) else None
+plt.rcParams['axes.unicode_minus'] = False
+warnings.filterwarnings("ignore", category=UserWarning, message="iCCP: known incorrect sRGB profile")
+sys.path.append(os.path.dirname(resource_path('NN_numpy.py')))
+
 st.set_page_config(page_title="混凝土强度预测", page_icon="🏗️", layout="wide")
 st.title("混凝土强度预测程序 📈")
 if 'results' not in st.session_state:
@@ -112,7 +99,6 @@ with tab2:
                     st.success("手动输入预测成功！结果已在下方显示。")
                 except Exception as e:
                     st.error(f"处理输入数据时发生错误: {e}")
-
 st.divider()
 
 # --- 结果展示区域 ---
@@ -190,3 +176,4 @@ else:
                 st.info("没有有效的真实值用于计算指标和绘图。")
         else:
             st.info("未提供真实值，无法进行性能评估和绘图。")
+
