@@ -2,7 +2,7 @@ import json
 import numpy as np
 import os
 
-SCALER_PATH = '已提取/scaler.npz'
+SCALER_PATH = 'scaler.npz'
 WEIGHTS_PATH = 'model_weights.json'
 
 
@@ -87,5 +87,6 @@ def predict_single(features):
     input_array = np.array(features).reshape(1, -1)
     prediction = model.predict(input_array)
     return prediction[0]
+
 
 
