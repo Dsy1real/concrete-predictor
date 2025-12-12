@@ -8,7 +8,8 @@ import sys
 import json
 import warnings
 
-
+plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'Arial Unicode MS']
+plt.rcParams['axes.unicode_minus'] = False
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -176,3 +177,4 @@ else:
                 st.info("没有有效的真实值用于计算指标和绘图。")
         else:
             st.info("未提供真实值，无法进行性能评估和绘图。")
+
