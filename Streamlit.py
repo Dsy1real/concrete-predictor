@@ -2,28 +2,34 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm 
+import matplotlib.font_manager as fm
 import os
 import sys
 import json
 import warnings
 
 def resource_path(relative_path):
+    """
+    获取资源的绝对路径。
+    此函数解决了在开发环境和通过 PyInstaller 打包后的环境中
+    资源文件（如字体、图片、模型文件）路径不同的问题。
+    """
     try:
+        # PyInstaller 创建一个临时文件夹，并将路径存储在 _MEIPASS 中
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        # 在开发环境中，使用 __file__ 获取当前脚本文件的路径
+        base_path = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(base_path, relative_path)
+
+# --- 字体和路径设置 ---
 font_path = resource_path('msyh.ttc')
-if os.path.exists(font_path):
-    my_font = fm.FontProperties(fname=font_path)
-    plt.rcParams['font.family'] = my_font.get_name()
-else:
-    st.warning(f"字体文件未找到: {font_path}。图表中的中文可能无法正常显示。")
-    plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']
+my_font = fm.FontProperties(fname=font_path) if os.path.exists(font_path) else None
 
 plt.rcParams['axes.unicode_minus'] = False
 warnings.filterwarnings("ignore", category=UserWarning, message="iCCP: known incorrect sRGB profile")
+
+# --- 导入自定义模块 ---
 sys.path.append(os.path.dirname(resource_path('NN_numpy.py')))
 import NN_numpy
 
@@ -74,7 +80,6 @@ with tab2:
     if st.button("开始预测 (手动)", key="predict_manual"):
         raw_input = manual_input_text.strip()
 
-        # 彩蛋
         if raw_input == '戴松芸':
             st.session_state.results = "easter_egg"
             st.balloons()
@@ -130,7 +135,6 @@ elif st.session_state.results == "easter_egg":
     except Exception as e:
         st.error(f"加载彩蛋时出错: {e}")
 
-# 处理正常的预测结果
 else:
     results = st.session_state.results
     predictions = results['predictions']
@@ -155,13 +159,18 @@ else:
             valid_trues = np.array([t for t in true_values if t is not None])
 
             if len(valid_trues) > 0:
+                if my_font is None:
+                    st.warning(f"字体文件未找到: {font_path}。图表中的中文可能无法正常显示。")
+
                 ax.scatter(valid_trues, valid_preds, alpha=0.7, label="数据点")
                 lims = [min(valid_trues.min(), valid_preds.min()), max(valid_trues.max(), valid_preds.max())]
                 ax.plot(lims, lims, 'r--', alpha=0.75, label="理想情况 (y=x)")
-                ax.set_title("预测值 vs. 真实值")
-                ax.set_xlabel("真实值")
-                ax.set_ylabel("预测值")
-                ax.legend()
+
+                ax.set_title("预测值 vs. 真实值", fontproperties=my_font)
+                ax.set_xlabel("真实值", fontproperties=my_font)
+                ax.set_ylabel("预测值", fontproperties=my_font)
+                ax.legend(prop=my_font)
+
                 fig.tight_layout()
                 st.pyplot(fig)
 
@@ -181,4 +190,3 @@ else:
                 st.info("没有有效的真实值用于计算指标和绘图。")
         else:
             st.info("未提供真实值，无法进行性能评估和绘图。")
-
