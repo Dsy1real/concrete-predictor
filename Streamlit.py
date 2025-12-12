@@ -2,23 +2,18 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm  # 导入字体管理器
+import matplotlib.font_manager as fm 
 import os
 import sys
 import json
 import warnings
 
 def resource_path(relative_path):
-    """ 获取资源的绝对路径，兼容 PyInstaller """
     try:
-        # PyInstaller 创建的临时文件夹
         base_path = sys._MEIPASS
     except Exception:
-        # 不在 PyInstaller 环境中
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
-
-
 font_path = resource_path('msyh.ttc')
 if os.path.exists(font_path):
     my_font = fm.FontProperties(fname=font_path)
@@ -186,3 +181,4 @@ else:
                 st.info("没有有效的真实值用于计算指标和绘图。")
         else:
             st.info("未提供真实值，无法进行性能评估和绘图。")
+
